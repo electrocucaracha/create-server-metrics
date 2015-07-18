@@ -50,7 +50,7 @@ def create_report(input_file, output_file):
             f.write("      <tr>\n")
             f.write("        <td>%s</td>\n" % data["process"])
             f.write("        <td><svg height='20'><g>\n")
-            f.write("            <rect x='%s' y='0' width='%s' height='20' style='fill:blue;stroke:black' />\n" % (time, data["duration"].total_seconds()))
+            f.write("            <rect x='%s' y='0' width='%s' height='20' style='fill:blue;stroke:black' />\n" % (time, data["duration"].total_seconds() * 1000))
             f.write("            <text x='%s' y='0' font-family='Verdana' font-size='30'>%s ms</text>\n" % (time + data["duration"].total_seconds(), data["duration"].total_seconds() * 1000))
             f.write("        </g></svg></td>\n")
             f.write("      </tr>\n")
