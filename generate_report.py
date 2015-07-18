@@ -16,7 +16,7 @@ def get_durations(filename):
                 if duration.total_seconds() != 0.0:
                     data["process"]  = last_process[:-1]
                     data["start_time"] = last_start
-                    data["duration"] = duration
+                    data["duration"] = duration.total_seconds() * 1000
                           
                     results.append(data)
                     data = {}
@@ -49,12 +49,12 @@ def create_report(input_file, output_file):
         for data in durations:
             f.write("      <tr>\n")
             f.write("        <td>%s</td>\n" % data["process"])
-            f.write("        <td><svg height='20'><g>\n")
-            f.write("            <rect x='%s' y='0' width='%s' height='20' style='fill:blue;stroke:black' />\n" % (time, data["duration"].total_seconds() * 1000))
-            f.write("            <text x='%s' y='0' font-family='Verdana' font-size='30'>%s ms</text>\n" % (time + data["duration"].total_seconds(), data["duration"].total_seconds() * 1000))
+            f.write("        <td><svg width='10000' height='30'><g>\n")
+            f.write("            <rect x='%s' y='0' width='%s' height='20' style='fill:blue;stroke:black' />\n" % (time, data["duration"]))
+            f.write("            <text x='%s' y='10' font-family='Verdana' font-size='10'>%s ms</text>\n" % (time + data["duration"] + 20, data["duration"]))
             f.write("        </g></svg></td>\n")
             f.write("      </tr>\n")
-            time += data["duration"].total_seconds()
+            time += data["duration"]
         f.write("    </table>\n")
         f.write("  </body>\n")
         f.write("</html>\n")
