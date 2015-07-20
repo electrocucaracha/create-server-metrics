@@ -2,7 +2,7 @@
 
 DATE=`date +%Y-%m-%d`
 FILE=/tmp/openstack-${DATE}.log
-REPORT=/srv/http/osprofiler/metrics/openstack-${DATE}.html
+REPORT=/srv/http/performance/openstack-${DATE}.html
 
 echo "Clean up"
 
