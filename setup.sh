@@ -3,6 +3,7 @@
 REPORT_DIR=/srv/http/performance/
 HOSTNAME=`hostname`
 
+mkdir -p /srv/http/performance
 mkdir -p /etc/httpd/conf.d
 cat <<EOL > /etc/httpd/conf.d/performance.conf
 Listen 8080
