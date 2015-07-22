@@ -5,6 +5,7 @@ import datetime
 from dateutil.parser import parse
 import getopt
 import logging
+from sets import Set
 import sys
 
 logger = logging.getLogger(__name__)
@@ -34,6 +35,8 @@ class OpenStackLogAnalyzer(object):
         parser.add_argument('-f', '--filename',
                 required=True,
                 help='Output file name.')
+        parser.add_argument('-v', '--os-version',
+                help='ClearLinux OS Release Version')
         parser.add_argument('-t', '--type',
                 default='all',
                 choices=['duration', 'interaction', 'all'],
@@ -83,27 +86,34 @@ class OpenStackLogAnalyzer(object):
     
     def _get_summary(self, durations):
         summary = {}
-        summary['os_version'] = self._get_os_version()
+        summary['os_version'] = self.os_version
         summary['total_time'] = sum ( data["duration"] for data in durations )
         summary['top_five_longest_tasks'] = sorted(durations, key=lambda data: data["duration"], reverse=True)[:5]
         return summary
+
+    def _get_interactions(self):
+        durations = self._get_durations(-1.0)
+        results = Set()
+        i = 0
+        j = 0
+        while i < len(durations):
+            while durations[i]["process"].split(".")[0] == durations[j]["process"].split(".")[0]:
+                j += 1
+                if j >= len(durations):
+                    break
+            if j >= len(durations):
+                break
+            results.add("  %s -> %s;\n" % (durations[i]["process"].split(".")[0], durations[j]["process"].split(".")[0]))
+            i = j
+        return results
     
     def create_dot_file(self, filename='interation.dot'):
-        durations = self._get_durations(-1.0)
+        interactions = self._get_interactions()
     
         with open(self.output_folder + filename, "w+") as f:
             f.write("digraph BootNovaInstance {\n")
-            i = 0
-            j = 0
-            while i < len(durations):
-                while durations[i]["process"].split(".")[0] == durations[j]["process"].split(".")[0]:
-                    j += 1
-                    if j >= len(durations):
-                        break
-                if j >= len(durations):
-                    break
-                f.write("  %s -> %s;\n" % (durations[i]["process"].split(".")[0], durations[j]["process"].split(".")[0]))
-                i = j
+            for interaction in interactions:
+                f.write(interaction)
             f.write("}\n")
     
     def create_duration_report(self, filename='duration.html'):
@@ -156,6 +166,7 @@ class OpenStackLogAnalyzer(object):
         (options, args) = parser.parse_known_args(argv)
         self.input_file = options.input_file
         self.output_folder = options.output_folder
+        self.os_version = options.os_version if options.os_version else self._get_os_version()
 
         if options.help or not argv:
             parser.print_help()
