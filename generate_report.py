@@ -31,6 +31,9 @@ class OpenStackLogAnalyzer(object):
         parser.add_argument('-o', '--output-folder',
                 required=True,
                 help='Reports output folder.')
+        parser.add_argument('-f', '--filename',
+                required=True,
+                help='Output file name.')
         parser.add_argument('-t', '--type',
                 default='all',
                 choices=['duration', 'interaction', 'all'],
@@ -95,9 +98,13 @@ class OpenStackLogAnalyzer(object):
             while i < len(durations):
                 while durations[i]["process"].split(".")[0] == durations[j]["process"].split(".")[0]:
                     j += 1
-                f.write("  %s -> %s;\n" % (durations[i]["process"], durations[j]["process"]))
+                    if j >= len(durations):
+                        break
+                if j >= len(durations):
+                    break
+                f.write("  %s -> %s;\n" % (durations[i]["process"].split(".")[0], durations[j]["process"].split(".")[0]))
                 i = j
-            f.write("}")
+            f.write("}\n")
     
     def create_duration_report(self, filename='duration.html'):
         title_space = 20
@@ -155,9 +162,9 @@ class OpenStackLogAnalyzer(object):
             return 0
 
         if options.type in ['duration']:
-            self.create_duration_report()
+            self.create_duration_report(options.filename)
         if options.type in ['interaction']:
-            self.create_dot_file()
+            self.create_dot_file(options.filename)
 
 
 def main():
@@ -167,6 +174,7 @@ def main():
         print("... terminating openstack log analyzer client", file=sys.stderr)
         sys.exit(130)
     except Exception as e:
+        print("ERROR : " + str(e))
         logger.debug(e, exc_info=1)
         sys.exit(1)
 

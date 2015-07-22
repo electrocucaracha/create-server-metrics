@@ -2,7 +2,9 @@
 
 DATE=`date +%Y-%m-%d`
 FILE=/tmp/openstack-${DATE}.log
-REPORT=/srv/http/performance/openstack-${DATE}.html
+REPORT_DIR=/srv/http/performance/
+
+export PATH=/usr/local/graphviz/bin:$PATH
 
 echo "Clean up"
 
@@ -28,4 +30,7 @@ sort -o ${FILE} ${FILE}
 
 popd
 
-python generate_report.py -i ${FILE} -o ${REPORT}
+python generate_report.py -i ${FILE} -o ${REPORT_DIR} -f openstack-${DATE}.html -t duration
+
+python generate_report.py -i ${FILE} -o ${REPORT_DIR} -f openstack-${DATE}.dot -t interaction
+dot -Tsvg openstack-${DATE}.dot -o ${REPORT_DIR}openstack-${DATE}.svg
